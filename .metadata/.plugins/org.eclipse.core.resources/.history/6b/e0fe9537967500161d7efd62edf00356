@@ -1,0 +1,29 @@
+package pieces;
+
+import java.awt.Color;
+import java.util.ArrayList;
+
+public class Square {
+
+	int posX = 0;
+	int posY = 0;
+	ArrayList<Block> blockList = null;
+	Color color = Color.BLUE;
+	
+	
+	public Square(int posX, int posY) {
+		super();
+		this.posX = posX;
+		this.posY = posY;
+		
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX + 1, posY, color));
+		blockList.add(new Block(posX + 1, posY + 1, color));
+		
+	}
+	
+	
+
+}
