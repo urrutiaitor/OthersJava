@@ -1,0 +1,7 @@
+package pieces;
+
+public class Square implements Piece {
+
+	
+
+}

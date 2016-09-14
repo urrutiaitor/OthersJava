@@ -1,0 +1,107 @@
+package pieces;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class Piece {
+
+	int posX = 0;
+	int posY = 0;
+	ArrayList<Block> blockList = null;
+	Color color = null;
+	final static int pieceNum = 1;
+	Random random = new Random();
+	int gameWidth = 10;
+	int gameHeight = 10;
+	
+	
+	public Piece (int posX, int posY, int gameWidth, int gameHeight) {
+		super();
+		this.posX = posX;
+		this.posY = posY;
+		this.gameHeight = gameHeight;
+		this.gameWidth = gameWidth;
+		
+		switch (random.nextInt(pieceNum)) {
+		
+		case 0: /* SQUARE */
+			createSquare();
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+
+	private void createSquare () {
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX + 1, posY, color));
+		blockList.add(new Block(posX + 1, posY + 1, color));
+		color = Color.BLUE;
+	}
+	
+	public boolean move () {
+		for (int i = 0; i < blockList.size(); i++) {
+			System.out.println("Pre: " + blockList.get(i).posY);
+			blockList.get(i).modifyY(1);
+			System.out.println("Post: " + blockList.get(i).posY);
+		}
+		return true;
+	}
+	
+	public boolean checkMove (ArrayList<Block> boardBlockList) {
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (!blockList.get(i).checkBlock(boardBlockList)) { /* WILL TOUCH IN THE MOVE */
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	
+	
+	public boolean move (int X) {
+		for (int i = 0; i < blockList.size(); i++) {
+			blockList.get(i).modifyX(X);
+		}
+		return true;
+	}
+	
+	public boolean checkMove (ArrayList<Block> boardBlockList, int X) {
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (!blockList.get(i).checkBlock(boardBlockList, X, gameWidth)) { /* WILL TOUCH IN THE MOVE */
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	public ArrayList<Block> getBlockList() {
+		return blockList;
+	}
+	
+	public boolean checkFinish (ArrayList<Block> boardBlockList) {
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (!blockList.get(i).checkBlock(boardBlockList)) { /* WILL TOUCH IN THE MOVE */
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+	
+	
+}
