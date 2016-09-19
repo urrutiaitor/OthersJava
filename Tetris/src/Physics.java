@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.Observable;
 import java.util.concurrent.Semaphore;
 
@@ -11,17 +12,15 @@ public class Physics extends Observable implements Runnable {
 	Piece piece = null;
 	long movePeriod;
 	Semaphore semaphore = null;
-	int screenWidth = 10;
-	int screenHeight = 10;
+	int screenWidth;
+	int screenHeight;
 	
 	public Physics (long movePeriod, Semaphore semaphore, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
 		this.blockList = blockList;
 		this.movePeriod = movePeriod;
 		this.semaphore = semaphore;
 		this.screenHeight = screenHeight;
-		this.screenWidth = screenWidth;
-
-		
+		this.screenWidth = screenWidth;	
 	}
 	
 	@Override
@@ -37,16 +36,61 @@ public class Physics extends Observable implements Runnable {
 		piece = new Piece(screenWidth/2, 0, screenWidth, screenHeight);
 
 		while (piece.checkFinish(blockList)) {
+			
+			if (piece.getNextMove().matches("ROTATE")) {
+				moveRotation();
+			}
+			
 			moveHorizontal();
+			
 			if (!moveVertical()) {
 				blockList.addAll(piece.getBlockList());
 				piece = null;
 				return true; /* THE PIECE HAS TOUCH THE GROUND */
 			}
+			
 			moveHorizontal();
+			
+			if (piece.getNextMove().matches("DOWN")) {
+				while (moveVertical()) {
+					
+				}
+				blockList.addAll(piece.getBlockList());
+				piece = null;
+				return true; /* THE PIECE HAS TOUCH THE GROUND */
+			}
+			
+			int line = -1;
+			
+			if ((line = checkLine()) != - 1) { /* CHECK IF LINE IS DONE */
+				System.out.println("Erasing line...");
+				eraseLine(line);
+			}
 		}
 		
 		return false;
+	}
+
+	private boolean moveRotation() {
+		boolean r = false;
+		
+		try {
+			semaphore.acquire();
+			Thread.sleep(movePeriod);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (piece.checkRotate(blockList)) {
+			piece.rotate();
+			this.setChanged();
+			this.notifyObservers(piece);
+		}
+		
+		semaphore.release();
+		
+		return r;
 	}
 
 	private boolean moveHorizontal() {
@@ -94,23 +138,49 @@ public class Physics extends Observable implements Runnable {
 		
 		return r;
 	}
-
-	private boolean move() {
-		try {
-			semaphore.acquire();
-			Thread.sleep(movePeriod);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	
+	private int checkLine() {
+		boolean[][] blockArray = new boolean[screenWidth][screenHeight];
+		
+		for (int y = 0; y < screenHeight; y++) {
+			for (int x = 0; x < screenWidth; x++) {
+				blockArray[x][y] = false;
+			}
 		}
 		
-		boolean r = piece.move();
+		for (int i = 0; i < blockList.size(); i++) {
+			int posX = blockList.get(i).getPosX();
+			int posY = blockList.get(i).getPosY();
+			blockArray[posX][posY] = true;
+		}
+		
+		for (int y = 0; y < screenHeight; y++) {
+			for (int x = 0; x < screenWidth; x++) {
+				if (blockArray[x][y] == false) {
+					break;
+				}
+				if (x == screenWidth - 1) return y;
+			}
+			
+			
+		}
+		
+		return -1;
+	}
+	
+	private void eraseLine(int line) {
+		ListIterator<Block> blockListIt = blockList.listIterator();
+		
+		while (blockListIt.hasNext()) {
+			if (blockListIt.next().getPosY() == line) blockListIt.remove();
+		}
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (blockList.get(i).getPosY() < line) blockList.get(i).modifyY(1);
+		}
+		
 		this.setChanged();
 		this.notifyObservers(piece);
-		
-		semaphore.release();
-		
-		return r;
 	}
 
 }
