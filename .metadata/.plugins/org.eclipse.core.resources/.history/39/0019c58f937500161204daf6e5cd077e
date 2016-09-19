@@ -1,8 +1,0 @@
-package pieces;
-
-public interface Piece {
-
-	int posX;
-	int posY;
-	int 
-}

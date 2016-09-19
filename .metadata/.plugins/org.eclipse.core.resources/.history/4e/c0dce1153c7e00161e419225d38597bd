@@ -1,0 +1,277 @@
+package pieces;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class Piece {
+
+	ArrayList<Block> blockList = null;
+	Color color = null;
+	final static int pieceNum = 7;
+	Random random = new Random();
+	int gameWidth;
+	int gameHeight;
+	String nextMove = "NULL";
+	int position = 0;
+	
+	
+	public Piece (int posX, int posY, int gameWidth, int gameHeight) {
+		super();
+		this.gameHeight = gameHeight;
+		this.gameWidth = gameWidth;
+		
+		switch (random.nextInt(pieceNum)) {
+		
+		case 0: /* SQUARE */
+			createSquare(posX, posY);
+			break;
+		case 1: /* STICK */
+			createStick(posX, posY);
+			break;
+		case 2: /* TRIANGLE */
+			createTriangle(posX, posY);
+			break;
+		case 3: /* ANGLE */
+			createAngleL(posX, posY);
+			break;
+		case 4: /* INVERSE ANGLE */
+			createInverseAngleL(posX, posY);
+			break;
+		case 5: /* INVERSE ANGLE */
+			createZ(posX, posY);
+			break;
+		case 6: /* ANGLE */
+			createInverseZ(posX, posY);
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+
+	private void createSquare (int posX, int posY) {
+		color = Color.CYAN;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX + 1, posY, color));
+		blockList.add(new Block(posX + 1, posY + 1, color));
+	}
+	
+	private void createStick(int posX, int posY) {
+		color = Color.RED;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX, posY + 2, color));
+		blockList.add(new Block(posX, posY + 3, color));
+	}
+
+	private void createTriangle(int posX, int posY) {
+		color = Color.GRAY;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX - 1, posY + 1, color));
+		blockList.add(new Block(posX + 1, posY + 1, color));
+	}
+	
+	private void createAngleL(int posX, int posY) {
+		color = Color.YELLOW;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX, posY + 2, color));
+		blockList.add(new Block(posX + 1, posY + 2, color));
+	}
+	
+	private void createInverseAngleL(int posX, int posY) {
+		color = Color.MAGENTA;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX, posY + 2, color));
+		blockList.add(new Block(posX - 1, posY + 2, color));
+	}
+	
+	private void createZ(int posX, int posY) {
+		color = Color.BLUE;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX - 1, posY + 1, color));
+		blockList.add(new Block(posX + 1, posY, color));
+	}
+	
+	private void createInverseZ(int posX, int posY) {
+		color = Color.GREEN;
+		blockList = new ArrayList<>();
+		blockList.add(new Block(posX, posY, color));
+		blockList.add(new Block(posX, posY + 1, color));
+		blockList.add(new Block(posX + 1, posY + 1, color));
+		blockList.add(new Block(posX - 1, posY, color));
+	}
+	
+	public boolean move () {
+		for (int i = 0; i < blockList.size(); i++) {
+			blockList.get(i).modifyY(1);
+		}
+		return true;
+	}
+	
+	public boolean checkMove (ArrayList<Block> boardBlockList) {
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (!blockList.get(i).checkBlock(boardBlockList)) { /* WILL TOUCH IN THE MOVE */
+				return false;
+			}
+			if (!blockList.get(i).checkGround(gameHeight)) { /* WILL TOUCH THE GROUND */
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public boolean moveX () {
+		if (nextMove.matches("RIGHT")) {
+			for (int i = 0; i < blockList.size(); i++) {
+				blockList.get(i).modifyX(1);
+			}
+			nextMove = "NOTHING-X";
+		}
+		if (nextMove.matches("LEFT")) {
+			for (int i = 0; i < blockList.size(); i++) {
+				blockList.get(i).modifyX(-1);
+			}
+			nextMove = "NOTHING-X";
+		}
+		
+		
+		return true;
+	}
+	
+	public boolean checkMoveX (ArrayList<Block> boardBlockList) {
+		int X = 0;
+		
+		if (nextMove.matches("RIGTH")) {
+			X = 1;
+		}
+		if (nextMove.matches("LEFT")) {
+			X = -1;
+		}
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (!blockList.get(i).checkBlock(boardBlockList, X, gameWidth)) { /* WILL TOUCH IN THE MOVE */
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	public ArrayList<Block> getBlockList() {
+		return blockList;
+	}
+	
+	public boolean checkFinish (ArrayList<Block> boardBlockList) {
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (!blockList.get(i).checkFinish(boardBlockList)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public boolean checkRotate (ArrayList<Block> boardBlockList) {
+		
+		ArrayList<Block> newPiece = rotationMovement();
+		System.out.println("CHECKING ROTATION");
+		nextMove = "NOTHING";
+		
+		for (int i = 0; i < newPiece.size(); i++) {
+			if (!newPiece.get(i).checkFinish(boardBlockList)) {
+				System.out.println("ROTATION NOT ALLOWED: FINISH");
+				return false;
+			}
+			if (!newPiece.get(i).checkBorder(gameWidth, gameHeight)) {
+				System.out.println("ROTATION NOT ALLOWED: BORDER");
+				return false;
+			}
+		}
+		System.out.println("ROTATION ALLOWED");
+		
+		return true;
+	}
+	
+	public void rotate () {
+		blockList = rotationMovement();
+		System.out.println("Pos: " + position);
+		position = (position + 1) % 4;
+		System.out.println("Pos: " + position);
+		nextMove = "NOTHING";
+	}
+	
+	public ArrayList<Block> rotationMovement () {
+		ArrayList<Block> newPiece = new ArrayList<Block>();
+	
+		for (int i = 0; i < blockList.size(); i++) {
+			newPiece.add(blockRotationMovement(blockList.get(i)));
+		}
+	
+		return newPiece;
+	}
+	
+	public Block blockRotationMovement (Block block) {
+		int posX = blockList.get(0).getPosX();
+		int posY = blockList.get(0).getPosY();
+		int newPosX = 0;
+		int newPosY = 0;
+		
+		switch (position) {
+		case 0:
+			System.out.println("CASE 0");
+			newPosX = posX + (block.getPosY() - posY);
+			newPosY = posY + (block.getPosX() - posX);
+			break;
+		case 1:
+			System.out.println("CASE 1");
+			newPosX = posX - (block.getPosY() - posY);
+			newPosY = posY - (block.getPosX() - posX);
+			break;
+		case 2:
+			System.out.println("CASE 2");
+			newPosX = posX - (block.getPosY() + posY);
+			newPosY = posY - (block.getPosX() + posX);
+			break;
+		case 3:
+			System.out.println("CASE 3");
+			newPosX = posX + (block.getPosY() + posY);
+			newPosY = posY + (block.getPosX() + posX);
+			break;
+			
+		default:
+			break;
+		}
+		
+		Block newBlock = new Block(newPosX, newPosY, block.getColor());
+		return newBlock;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public String getNextMove() {
+		return nextMove;
+	}
+
+	public void setNextMove(String nextMove) {
+		this.nextMove = nextMove;
+	}
+	
+}
