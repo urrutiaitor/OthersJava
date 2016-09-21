@@ -54,7 +54,7 @@ public class Screen extends JPanel {
 	}
 	
 	private void paintBackground (Graphics g) {
-		g.setColor(Color.WHITE);
+		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, screenWidthP, screenHeightP);
 	}
 

@@ -12,7 +12,7 @@ public class Piece {
 	Random random = new Random();
 	int gameWidth;
 	int gameHeight;
-	String nextMove = "NULL";
+	String nextMove = "NEXT";
 	int position = 0;
 	
 	
@@ -206,9 +206,7 @@ public class Piece {
 	
 	public void rotate () {
 		blockList = rotationMovement();
-		System.out.println("Pos: " + position);
 		position = (position + 1) % 4;
-		System.out.println("Pos: " + position);
 		nextMove = "NOTHING";
 	}
 	
