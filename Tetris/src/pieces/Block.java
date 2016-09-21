@@ -66,7 +66,6 @@ public class Block {
 	
 	public boolean checkGround(int height) {
 		if (posY >= height - 1) {
-			System.out.println("----------- TOUCH IN THE GROUND -----------");
 			return false;
 		}
 		return true;

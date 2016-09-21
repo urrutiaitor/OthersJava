@@ -10,10 +10,12 @@ public class Physics extends Observable implements Runnable {
 
 	ArrayList<Block> blockList = null;
 	Piece piece = null;
+	Piece nextPiece = null;
 	long movePeriod;
 	Semaphore semaphore = null;
 	int screenWidth;
 	int screenHeight;
+	int puntuation = 0;
 	
 	public Physics (long movePeriod, Semaphore semaphore, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
 		this.blockList = blockList;
@@ -33,8 +35,17 @@ public class Physics extends Observable implements Runnable {
 	}
 
 	private boolean loop() { /* PERIOD OF EACH PIECE */
-		piece = new Piece(screenWidth/2, 0, screenWidth, screenHeight);
-
+		if (nextPiece == null) {
+			nextPiece = new Piece(screenWidth/2, 0, screenWidth, screenHeight);
+		}
+		
+		piece = nextPiece;
+		piece.setNextMove("NULL");
+		nextPiece = new Piece(screenWidth/2, 0, screenWidth, screenHeight);
+		
+		this.setChanged();
+		this.notifyObservers(nextPiece);
+		
 		while (piece.checkFinish(blockList)) {
 			
 			if (piece.getNextMove().matches("ROTATE")) {
@@ -63,8 +74,12 @@ public class Physics extends Observable implements Runnable {
 			int line = -1;
 			
 			if ((line = checkLine()) != - 1) { /* CHECK IF LINE IS DONE */
-				System.out.println("Erasing line...");
 				eraseLine(line);
+				puntuation++;
+				movePeriod = movePeriod - 5;
+				if (movePeriod < 0) movePeriod = 1;
+				this.setChanged();
+				this.notifyObservers(puntuation);
 			}
 		}
 		

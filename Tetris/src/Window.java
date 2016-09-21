@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -22,17 +23,19 @@ public class Window extends JFrame implements Observer, KeyListener {
 	Semaphore s;
 	ArrayList<Block> list;
 	Piece piece;
+	Piece nextPiece;
 	int screenWidth;
 	int screenHeight;
 	Screen screen;
-	
-	
-	public Window(Semaphore s, ArrayList<Block> blockList, int screenWidth, int screenHeight){
+	PieceScreen pieceScreen;
+	JLabel scoreLabel;
+
+	public Window(Semaphore s, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
 		this.s = s;
 		this.list = blockList;
 		this.screenHeight = screenHeight;
 		this.screenWidth = screenWidth;
-		
+
 		this.setLocation(500, 20);
 		this.getContentPane().add(createWindowPane());
 		this.setVisible(true);
@@ -44,20 +47,19 @@ public class Window extends JFrame implements Observer, KeyListener {
 
 	private Component createWindowPane() {
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.ORANGE),
-				BorderFactory.createTitledBorder("Tetris")));
-		panel.setBackground(Color.WHITE);
 		
+		panel.setBackground(Color.WHITE);
+
 		panel.add(createMenuZone(), BorderLayout.NORTH);
 		panel.add(createGameZone(), BorderLayout.CENTER);
 		panel.add(createInfoZone(), BorderLayout.EAST);
-		
+
 		return panel;
 	}
 
 	private Component createMenuZone() {
 		JPanel panel = new JPanel();
-		
+
 		return panel;
 	}
 
@@ -65,60 +67,74 @@ public class Window extends JFrame implements Observer, KeyListener {
 		screen = new Screen(screenWidth, screenHeight, list);
 		return screen;
 	}
-	
+
 	private Component createInfoZone() {
 		JPanel panel = new JPanel(new GridLayout(2, 1));
+		panel.setBorder(
+				BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
 		panel.add(createNextPieceZone());
 		panel.add(createScoreZone());
 		return panel;
 	}
 
 	private Component createNextPieceZone() {
-		/* PieceScreen ps = new PieceScreen();
-		
-		return ps; */
-		
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.ORANGE),
-				BorderFactory.createTitledBorder("Siguiente pieza")));
-		panel.add(new JLabel("CONTENIDO"), BorderLayout.CENTER);
-		panel.setBackground(Color.WHITE);
-		return panel;
+		pieceScreen = new PieceScreen(nextPiece);
+
+		return pieceScreen;
 	}
 
 	private Component createScoreZone() {
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.ORANGE),
-				BorderFactory.createTitledBorder("Puntuación")));
-		panel.add(new JLabel("CONTENIDO"), BorderLayout.CENTER);
+		
+		scoreLabel = new JLabel("0");
+		Font font = new Font("Courier", Font.BOLD, 100);
+		scoreLabel.setFont(font);
+		scoreLabel.setForeground(Color.RED);
+		panel.add(scoreLabel, BorderLayout.CENTER);
 		panel.setBackground(Color.WHITE);
 		return panel;
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (arg instanceof Piece) piece = (Piece) arg;
-		screen.setPiece(piece);
-		screen.repaint();
+		if (arg instanceof Piece) {
+			if (((Piece) arg).getNextMove().matches("NEXT")) {
+				pieceScreen.setPiece((Piece) arg);
+				pieceScreen.repaint();
+			} else {
+				piece = (Piece) arg;
+				screen.setPiece(piece);
+				screen.repaint();
+			}
+
+		}
+		if (arg instanceof Integer) {
+			scoreLabel.setText(((Integer) arg).toString());
+		}
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
+
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT) piece.setNextMove("RIGHT");
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) piece.setNextMove("LEFT");
-		if (e.getKeyCode() == KeyEvent.VK_UP) piece.setNextMove("ROTATE");
-		if (e.getKeyCode() == KeyEvent.VK_DOWN) piece.setNextMove("DOWN");
-		if (e.getKeyCode() == KeyEvent.VK_Q) System.exit(-1);
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+			piece.setNextMove("RIGHT");
+		if (e.getKeyCode() == KeyEvent.VK_LEFT)
+			piece.setNextMove("LEFT");
+		if (e.getKeyCode() == KeyEvent.VK_UP)
+			piece.setNextMove("ROTATE");
+		if (e.getKeyCode() == KeyEvent.VK_DOWN)
+			piece.setNextMove("DOWN");
+		if (e.getKeyCode() == KeyEvent.VK_Q)
+			System.exit(-1);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		//piece.setNextMove("NOTHING");
+		// piece.setNextMove("NOTHING");
 	}
-	
+
 }
