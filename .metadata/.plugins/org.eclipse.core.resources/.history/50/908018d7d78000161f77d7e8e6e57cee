@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Observable;
@@ -77,13 +76,12 @@ public class Physics extends Observable implements Runnable {
 			int line = -1;
 			
 			while ((line = checkLine()) != - 1) { /* CHECK IF LINE IS DONE */
-				if (eraseLine(line)) colorLineNum++;
+				colorLineNum = eraseLine(line);
 				lineNum++;
 			}
 			if (lineNum > 0) {
 				movePeriod = movePeriod - 5;
-				puntuation = puntuation + ((lineNum-colorLineNum)*(lineNum-colorLineNum)*10);
-				puntuation = puntuation + (colorLineNum * colorLineNum * 100);
+				puntuation = puntuation + (lineNum*lineNum*10);
 				if (movePeriod < 0) movePeriod = 1;
 				lineNum = 0;
 				colorLineNum = 0;
@@ -192,17 +190,11 @@ public class Physics extends Observable implements Runnable {
 		return -1;
 	}
 	
-	private boolean eraseLine(int line) {
+	private void eraseLine(int line) {
 		ListIterator<Block> blockListIt = blockList.listIterator();
-		boolean sameColor = true;
-		Color initColor = blockList.get(0).getColor();
 		
 		while (blockListIt.hasNext()) {
-			Block block = blockListIt.next();
-			if (block.getPosY() == line) {
-				if (block.getColor() != initColor) sameColor = false;
-				blockListIt.remove();
-			}
+			if (blockListIt.next().getPosY() == line) blockListIt.remove();
 		}
 		
 		for (int i = 0; i < blockList.size(); i++) {
@@ -211,8 +203,6 @@ public class Physics extends Observable implements Runnable {
 		
 		this.setChanged();
 		this.notifyObservers(piece);
-		
-		return sameColor;
 	}
 
 }

@@ -87,7 +87,7 @@ public class Window extends JFrame implements Observer, KeyListener {
 		JPanel panel = new JPanel(new BorderLayout());
 		
 		scoreLabel = new JLabel("0");
-		Font font = new Font("Courier", Font.BOLD, 70);
+		Font font = new Font("Courier", Font.BOLD, 100);
 		scoreLabel.setFont(font);
 		scoreLabel.setForeground(Color.RED);
 		panel.add(scoreLabel, BorderLayout.CENTER);
