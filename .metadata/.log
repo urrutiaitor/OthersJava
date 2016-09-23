@@ -1027,3 +1027,13 @@ Caused by: org.eclipse.aether.transfer.ArtifactTransferException: Failure to tra
 
 !ENTRY org.eclipse.recommenders.models.rcp 1 0 2016-09-21 14:39:59.121
 !MESSAGE jre:jre:call:zip:1.0.0 could not be resolved from the model repositories. Are you offline?
+!SESSION 2016-09-22 16:56:09.561 -----------------------------------------------
+eclipse.buildId=4.6.0.I20160606-1100
+java.version=1.8.0_25
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=es_ES
+Framework arguments:  -product org.eclipse.epp.package.java.product -keyring /Users/aitorurrutia/.eclipse_keyring
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -keyring /Users/aitorurrutia/.eclipse_keyring
+
+!ENTRY org.eclipse.core.net 1 0 2016-09-22 16:56:15.438
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences

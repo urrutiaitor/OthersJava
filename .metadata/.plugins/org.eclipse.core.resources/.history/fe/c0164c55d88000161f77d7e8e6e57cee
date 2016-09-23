@@ -82,8 +82,7 @@ public class Physics extends Observable implements Runnable {
 			}
 			if (lineNum > 0) {
 				movePeriod = movePeriod - 5;
-				puntuation = puntuation + ((lineNum-colorLineNum)*(lineNum-colorLineNum)*10);
-				puntuation = puntuation + (colorLineNum * colorLineNum * 100);
+				puntuation = puntuation + (lineNum*lineNum*10);
 				if (movePeriod < 0) movePeriod = 1;
 				lineNum = 0;
 				colorLineNum = 0;
