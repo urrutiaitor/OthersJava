@@ -82,8 +82,8 @@ public class Window extends JFrame implements Observer, KeyListener {
 	private Component createLevelZone() {
 		JPanel panel = new JPanel(new BorderLayout());
 		
-		levelLabel = new JLabel("Lvl 1");
-		Font font = new Font("Courier", Font.BOLD, 40);
+		levelLabel = new JLabel("Nivel 1");
+		Font font = new Font("Courier", Font.BOLD, 60);
 		levelLabel.setFont(font);
 		levelLabel.setForeground(Color.BLACK);
 		panel.add(levelLabel, BorderLayout.CENTER);
@@ -119,7 +119,7 @@ public class Window extends JFrame implements Observer, KeyListener {
 		if (arg instanceof Integer) {
 			int puntuation = (Integer) arg;
 			scoreLabel.setText(String.valueOf(puntuation));
-			levelLabel.setText("Lvl " + String.valueOf(++level));
+			levelLabel.setText("Nivel " + String.valueOf(++level));
 		}
 	}
 
