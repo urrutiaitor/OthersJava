@@ -49,6 +49,8 @@ public class Window extends JFrame implements Observer, KeyListener {
 
 	private Component createWindowPane() {
 		JPanel panel = new JPanel(new BorderLayout());
+		
+		//panel.setBackground(Color.WHITE);
 
 		panel.add(createGameZone(), BorderLayout.CENTER);
 		panel.add(createInfoZone(), BorderLayout.EAST);
@@ -63,7 +65,8 @@ public class Window extends JFrame implements Observer, KeyListener {
 
 	private Component createInfoZone() {
 		JPanel panel = new JPanel(new GridLayout(3, 1));
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
+		panel.setBorder(
+				BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
 		panel.add(createNextPieceZone());
 		panel.add(createLevelZone());
 		panel.add(createScoreZone());
@@ -72,16 +75,12 @@ public class Window extends JFrame implements Observer, KeyListener {
 
 	private Component createNextPieceZone() {
 		pieceScreen = new PieceScreen(nextPiece);
-		pieceScreen.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), pieceScreen.getBorder()));
-		pieceScreen.setBackground(Color.WHITE);
 
 		return pieceScreen;
 	}
 	
 	private Component createLevelZone() {
 		JPanel panel = new JPanel(new BorderLayout());
-		
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
 		
 		levelLabel = new JLabel("Lvl 1");
 		Font font = new Font("Courier", Font.BOLD, 40);
@@ -94,8 +93,6 @@ public class Window extends JFrame implements Observer, KeyListener {
 
 	private Component createScoreZone() {
 		JPanel panel = new JPanel(new BorderLayout());
-		
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
 		
 		scoreLabel = new JLabel("0");
 		Font font = new Font("Courier", Font.BOLD, 60);
