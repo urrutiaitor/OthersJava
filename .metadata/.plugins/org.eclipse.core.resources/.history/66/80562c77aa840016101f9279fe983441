@@ -39,7 +39,7 @@ import javax.swing.JPanel;
 			
 			
 			void crearventana(){
-				setSize(550, 600);
+				setSize(500, 600);
 				setLocation(500, 20);
 				setTitle("Tetris");
 				setContentPane(panelventana());
