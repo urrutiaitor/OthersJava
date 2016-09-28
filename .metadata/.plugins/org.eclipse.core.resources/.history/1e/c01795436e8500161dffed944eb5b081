@@ -1,0 +1,286 @@
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import pieces.Block;
+
+public class Menu extends JFrame implements ActionListener {
+
+	static String[] cadena;
+	static String[] usuariosRanking;
+	static int[] puntuaciones;
+	static String nombreGanador;
+	static int adelantado;
+	static int puntosAdelantador;
+	final static int screenWidth = 10;
+	final static int screenHeight = 20;
+
+	static JButton jugar, salir, clasificacion, opciones;
+	static JPanel panelVentana;
+
+	Window window;
+	Physics physics;
+	HiloMusica hiloMusica;
+
+	public static void main(String[] args) throws IOException {
+		Menu programa = new Menu();
+		programa.ejecutar();
+	}
+
+	public Menu() {
+		cadena = new String[10];
+		usuariosRanking = new String[10];
+		puntuaciones = new int[10];
+	}
+
+	private void ejecutar() throws IOException {
+		String archivo = "./datos.dat";
+		leerFichero(archivo);
+		crearventana();
+	}
+
+	void crearventana() {
+		setSize(550, 600);
+		setLocation(500, 20);
+		setTitle("Tetris");
+		setContentPane(panelventana());
+		setDefaultCloseOperation(3);
+		setResizable(false);
+		setVisible(true);
+
+	}
+
+	private Container panelventana() {
+		panelVentana = new JPanel(new BorderLayout());
+		panelVentana.add(panelCentro(), BorderLayout.CENTER);
+
+		return panelVentana;
+	}
+
+	private Component panelCentro() {
+		PanelFondo panel = new PanelFondo("./fotos/tetrisOriginal.jpg");
+
+		jugar = new JButton();
+		salir = new JButton();
+		clasificacion = new JButton();
+		opciones = new JButton();
+
+		jugar.setText("JUGAR");
+		salir.setText("SALIR");
+		clasificacion.setText("CLASIFICACION");
+		opciones.setText("OPCIONES");
+
+		jugar.addActionListener(this);
+		salir.addActionListener(this);
+		clasificacion.addActionListener(this);
+		opciones.addActionListener(this);
+
+		panel.add(jugar);
+		panel.add(opciones);
+		panel.add(clasificacion);
+		panel.add(salir);
+
+		return panel;
+	}
+
+	public class PanelFondo extends JPanel {
+
+		private static final long serialVersionUID = 1L;
+
+		public Image imagen;
+
+		PanelFondo(String direccion) {
+			setLayout(new FlowLayout());
+			imagen = new ImageIcon(direccion).getImage();
+		}
+
+		public void paintComponent(Graphics g) {
+			g.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
+		}
+
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == jugar) {
+			iniciarJuego();
+		}
+
+		if (e.getSource() == salir) {
+			cerrarJuego();
+		}
+
+		if (e.getSource() == clasificacion) {
+			mostrarClasificacion();
+		}
+
+		if (e.getSource() == opciones) {
+			mostrarOpciones();
+		}
+	}
+
+	private void mostrarOpciones() {
+		JDialog opciones = new JDialog();
+		opciones.setVisible(true);
+		opciones.setTitle("CONFIGURACION");
+		opciones.setSize(280, 280);
+		opciones.setLocation(this.getLocation());
+
+		// opciones.setContentPane(panel); //el panel que se vaya a poner de
+		// opciones
+
+	}
+
+	private void mostrarClasificacion() {
+		JDialog opciones = new JDialog();
+		JPanel panelRanking = new JPanel(new GridLayout(10, 2));
+
+		opciones.setVisible(true);
+		opciones.setTitle("CLASIFICACION");
+		opciones.setSize(280, 280);
+		opciones.setLocation(this.getLocation());
+
+		JLabel nombresLabel[] = new JLabel[10];
+
+		for (int i = 0; i < 10; i++) {
+			nombresLabel[i] = new JLabel();
+			nombresLabel[i].setText(cadena[i]);
+			panelRanking.add(nombresLabel[i]);
+		}
+
+		opciones.setContentPane(panelRanking); // el panel que se vaya a poner
+												// de opciones
+	}
+
+	private void cerrarJuego() {
+		System.exit(0);
+	}
+
+	private void iniciarJuego() {
+
+		ArrayList<Block> blockList = new ArrayList<>();
+
+		String audioFilePath = "./tetrisSoundtrack.wav";
+		// hiloMusica = new HiloMusica(audioFilePath);
+
+		window = new Window(blockList, screenWidth, screenHeight);
+		physics = new Physics(100, blockList, screenWidth, screenHeight, this);
+
+		physics.addObserver(window);
+
+		physics.run();
+
+		// musicaFondo.start();
+		
+		this.dispose();
+
+	}
+
+	static void compararPuntuacion(int puntos) throws IOException {
+
+		for (int i = 0; i < puntuaciones.length; i++) {
+			if (puntos > puntuaciones[i]) {
+				adelantado = i;
+				puntosAdelantador = puntos;
+				pedirNombre();
+				i = puntos;
+			}
+		}
+
+	}
+
+	private static void pedirNombre() {
+		JDialog dialogoNombre = new JDialog();
+		JPanel panelDialogo = new JPanel(new GridLayout(1, 3));
+		JTextField nombreTextField = new JTextField();
+		JButton aceptarNombre = new JButton();
+		aceptarNombre.setText("aceptar");
+
+		dialogoNombre.setVisible(true);
+		dialogoNombre.setTitle("Nombre de usuario");
+		dialogoNombre.setSize(300, 100);
+		dialogoNombre.setLocation(400, 400);
+
+		panelDialogo.add(new JLabel("Nombre: "));
+		panelDialogo.add(nombreTextField);
+		panelDialogo.add(aceptarNombre);
+
+		dialogoNombre.setContentPane(panelDialogo);
+
+		aceptarNombre.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				nombreGanador = nombreTextField.getText();
+				puntuaciones[adelantado] = puntosAdelantador;
+				usuariosRanking[adelantado] = nombreGanador;
+				cadena[adelantado] = nombreGanador + "=" + String.valueOf(puntosAdelantador);
+				
+				try {
+					guardarPuntos(cadena);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+
+				dialogoNombre.dispose();
+			}
+		});
+	}
+
+	private static void guardarPuntos(String[] cadenaDatos) throws IOException {
+		BufferedWriter bw = new BufferedWriter(new FileWriter("./datos.dat"));
+
+		for (int i = 0; i < puntuaciones.length; i++) {
+			if (i + 1 < puntuaciones.length) {
+				bw.write(cadenaDatos[i] + "\n");
+			} else {
+				bw.write(cadenaDatos[i]);
+			}
+		}
+		bw.close();
+
+	}
+
+	static void leerFichero(String archivo) throws IOException {
+		String linea;
+		int cont = 0;
+		FileReader f = new FileReader(archivo);
+		BufferedReader b = new BufferedReader(f);
+
+		while ((linea = b.readLine()) != null) {
+			cadena[cont] = linea;
+			System.out.println("Cadena: " + cadena[cont]);
+			String[] campos = linea.split("=");
+
+			usuariosRanking[cont] = campos[0];
+			puntuaciones[cont] = Integer.valueOf(campos[1]);
+
+			System.out.println(usuariosRanking[cont] + ":" + puntuaciones[cont]);
+			cont++;
+
+		}
+		b.close();
+	}
+
+	public HiloMusica getHiloMusica() {
+		return hiloMusica;
+	}
+
+}

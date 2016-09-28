@@ -1,0 +1,229 @@
+import java.awt.Color;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.Observable;
+import java.util.concurrent.Semaphore;
+
+import pieces.Block;
+import pieces.Piece;
+
+public class Physics extends Observable implements Runnable {
+
+	ArrayList<Block> blockList = null;
+	Piece piece = null;
+	Piece nextPiece = null;
+	long movePeriod;
+	Semaphore semaphore = null;
+	int screenWidth;
+	int screenHeight;
+	int puntuation = 0;
+	int lineNum = 0;
+	int colorLineNum = 0;
+	
+	public Physics (long movePeriod, Semaphore semaphore, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
+		this.blockList = blockList;
+		this.movePeriod = movePeriod;
+		this.semaphore = semaphore;
+		this.screenHeight = screenHeight;
+		this.screenWidth = screenWidth;	
+	}
+	
+	@Override
+	public void run() { /* PERIOD OF ALL GAME */
+		System.out.println("Starting physics");
+		while (loop()) {
+		}
+		
+		try {
+			Menu.leerFichero("./datos.dat");
+			Menu.compararPuntuacion(puntuation);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		GameOver go = new GameOver();
+		
+		//System.exit(-1);
+		
+	}
+
+	private boolean loop() { /* PERIOD OF EACH PIECE */
+		if (nextPiece == null) {
+			nextPiece = new Piece(screenWidth/2, 0, screenWidth, screenHeight);
+		}
+		
+		piece = nextPiece;
+		piece.setNextMove("NULL");
+		nextPiece = new Piece(screenWidth/2, 0, screenWidth, screenHeight);
+		
+		this.setChanged();
+		this.notifyObservers(nextPiece);
+		
+		while (piece.checkFinish(blockList)) {
+			
+			if (piece.getNextMove().matches("ROTATE")) {
+				moveRotation();
+			}
+			
+			moveHorizontal();
+			
+			if (!moveVertical()) {
+				blockList.addAll(piece.getBlockList());
+				piece = null;
+				return true; /* THE PIECE HAS TOUCH THE GROUND */
+			}
+			
+			moveHorizontal();
+			
+			if (piece.getNextMove().matches("DOWN")) {
+				while (moveVertical()) {
+					
+				}
+				blockList.addAll(piece.getBlockList());
+				piece = null;
+				return true; /* THE PIECE HAS TOUCH THE GROUND */
+			}
+			
+			int line = -1;
+			
+			while ((line = checkLine()) != - 1) { /* CHECK IF LINE IS DONE */
+				if (eraseLine(line)) colorLineNum++;
+				lineNum++;
+			}
+			if (lineNum > 0) {
+				movePeriod = movePeriod - 5;
+				puntuation = puntuation + ((lineNum-colorLineNum)*(lineNum-colorLineNum)*10);
+				puntuation = puntuation + (colorLineNum * colorLineNum * 100);
+				if (movePeriod < 0) movePeriod = 1;
+				lineNum = 0;
+				colorLineNum = 0;
+				this.setChanged();
+				this.notifyObservers(puntuation);
+			}
+		}
+		
+		return false;
+	}
+
+	private boolean moveRotation() {
+		boolean r = false;
+		
+		try {
+			semaphore.acquire();
+			Thread.sleep(movePeriod);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (piece.checkRotate(blockList)) {
+			piece.rotate();
+			this.setChanged();
+			this.notifyObservers(piece);
+		}
+		
+		semaphore.release();
+		
+		return r;
+	}
+
+	private boolean moveHorizontal() {
+		boolean r = false;
+		
+		try {
+			semaphore.acquire();
+			Thread.sleep(movePeriod);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (piece.checkMoveX(blockList)) {
+			r = piece.moveX();
+			this.setChanged();
+			this.notifyObservers(piece);
+		}
+		
+		semaphore.release();
+		
+		return r;
+	}
+
+	private boolean moveVertical() {
+		boolean r = false;
+		
+		try {
+			semaphore.acquire();
+			Thread.sleep(movePeriod);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (piece.checkMove(blockList)) {
+			r = piece.move();
+			this.setChanged();
+			this.notifyObservers(piece);
+		} else {
+			r = false;
+		}
+		
+		semaphore.release();
+		
+		return r;
+	}
+	
+	private int checkLine() {
+		boolean[][] blockArray = new boolean[screenWidth][screenHeight];
+		
+		for (int y = 0; y < screenHeight; y++) {
+			for (int x = 0; x < screenWidth; x++) {
+				blockArray[x][y] = false;
+			}
+		}
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			int posX = blockList.get(i).getPosX();
+			int posY = blockList.get(i).getPosY();
+			blockArray[posX][posY] = true;
+		}
+		
+		for (int y = 0; y < screenHeight; y++) {
+			for (int x = 0; x < screenWidth; x++) {
+				if (blockArray[x][y] == false) {
+					break;
+				}
+				if (x == screenWidth - 1) return y;
+			}
+			
+			
+		}
+		
+		return -1;
+	}
+	
+	private boolean eraseLine(int line) {
+		ListIterator<Block> blockListIt = blockList.listIterator();
+		boolean sameColor = true;
+		Color initColor = blockList.get(0).getColor();
+		
+		while (blockListIt.hasNext()) {
+			Block block = blockListIt.next();
+			if (block.getPosY() == line) {
+				if (block.getColor() != initColor) sameColor = false;
+				blockListIt.remove();
+			}
+		}
+		
+		for (int i = 0; i < blockList.size(); i++) {
+			if (blockList.get(i).getPosY() < line) blockList.get(i).modifyY(1);
+		}
+		
+		this.setChanged();
+		this.notifyObservers(piece);
+		
+		return sameColor;
+	}
+
+}

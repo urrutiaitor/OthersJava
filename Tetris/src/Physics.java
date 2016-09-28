@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Observable;
@@ -13,28 +14,32 @@ public class Physics extends Observable implements Runnable {
 	Piece piece = null;
 	Piece nextPiece = null;
 	long movePeriod;
-	Semaphore semaphore = null;
 	int screenWidth;
 	int screenHeight;
 	int puntuation = 0;
 	int lineNum = 0;
 	int colorLineNum = 0;
+	BuzonAsincrono buzon;
 	
-	public Physics (long movePeriod, Semaphore semaphore, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
+	public Physics (BuzonAsincrono buzon, long movePeriod, ArrayList<Block> blockList, int screenWidth, int screenHeight, Menu menu) {
 		this.blockList = blockList;
 		this.movePeriod = movePeriod;
-		this.semaphore = semaphore;
 		this.screenHeight = screenHeight;
-		this.screenWidth = screenWidth;	
+		this.screenWidth = screenWidth;
+		this.buzon = buzon;
 	}
 	
 	@Override
 	public void run() { /* PERIOD OF ALL GAME */
 		System.out.println("Starting physics");
 		while (loop()) {
-		}
 		
-		System.exit(-1);
+		}
+		System.out.println("End of game");
+		
+		buzon.send(puntuation);
+		System.out.println("Puntuation send");
+		
 	}
 
 	private boolean loop() { /* PERIOD OF EACH PIECE */
@@ -99,7 +104,6 @@ public class Physics extends Observable implements Runnable {
 		boolean r = false;
 		
 		try {
-			semaphore.acquire();
 			Thread.sleep(movePeriod);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -112,8 +116,6 @@ public class Physics extends Observable implements Runnable {
 			this.notifyObservers(piece);
 		}
 		
-		semaphore.release();
-		
 		return r;
 	}
 
@@ -121,7 +123,6 @@ public class Physics extends Observable implements Runnable {
 		boolean r = false;
 		
 		try {
-			semaphore.acquire();
 			Thread.sleep(movePeriod);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -134,8 +135,6 @@ public class Physics extends Observable implements Runnable {
 			this.notifyObservers(piece);
 		}
 		
-		semaphore.release();
-		
 		return r;
 	}
 
@@ -143,7 +142,6 @@ public class Physics extends Observable implements Runnable {
 		boolean r = false;
 		
 		try {
-			semaphore.acquire();
 			Thread.sleep(movePeriod);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -157,8 +155,6 @@ public class Physics extends Observable implements Runnable {
 		} else {
 			r = false;
 		}
-		
-		semaphore.release();
 		
 		return r;
 	}
