@@ -1,0 +1,158 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.Semaphore;
+
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import pieces.Block;
+import pieces.Piece;
+
+public class Window extends JFrame implements Observer, KeyListener {
+
+	Semaphore s;
+	ArrayList<Block> list;
+	Piece piece;
+	Piece nextPiece;
+	int screenWidth;
+	int screenHeight;
+	Screen screen;
+	PieceScreen pieceScreen;
+	JLabel scoreLabel;
+	JLabel levelLabel;
+	int level = 1;
+
+	public Window(Semaphore s, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
+		this.s = s;
+		this.list = blockList;
+		this.screenHeight = screenHeight;
+		this.screenWidth = screenWidth;
+
+		this.setLocation(500, 20);
+		this.getContentPane().add(createWindowPane());
+		this.setVisible(true);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.pack();
+		this.addKeyListener(this);
+		this.setResizable(false);
+	}
+
+	private Component createWindowPane() {
+		JPanel panel = new JPanel(new BorderLayout());
+
+		panel.add(createGameZone(), BorderLayout.WEST);
+		panel.add(createInfoZone(), BorderLayout.EAST);
+
+		return panel;
+	}
+
+	private Component createGameZone() {
+		JPanel panel = new JPanel(new BorderLayout());
+		//panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
+		screen = new Screen(screenWidth, screenHeight, list);
+		panel.add(screen);
+		return panel;
+	}
+
+	private Component createInfoZone() {
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		panel.add(createNextPieceZone(),BorderLayout.NORTH);
+		panel.add(createLevelZone(),BorderLayout.CENTER);
+		panel.add(createScoreZone(),BorderLayout.SOUTH);
+		return panel;
+	}
+
+	private Component createNextPieceZone() {
+		JPanel panel = new JPanel(new BorderLayout());
+		pieceScreen = new PieceScreen(nextPiece);
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		panel.setBackground(Color.WHITE);
+		panel.add(pieceScreen);
+
+		return panel;
+	}
+	
+	private Component createLevelZone() {
+		JPanel panel = new JPanel(new BorderLayout());
+		
+		System.out.println("HHHHHHHHHHHHHHH");
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		
+		levelLabel = new JLabel("Lvl 1");
+		Font font = new Font("Courier", Font.BOLD, 40);
+		levelLabel.setFont(font);
+		levelLabel.setForeground(Color.BLACK);
+		panel.add(levelLabel, BorderLayout.CENTER);
+		panel.setBackground(Color.WHITE);
+		return panel;
+	}
+
+	private Component createScoreZone() {
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
+		scoreLabel = new JLabel("0");
+		Font font = new Font("Courier", Font.BOLD, 60);
+		scoreLabel.setFont(font);
+		scoreLabel.setForeground(Color.RED);
+		panel.add(scoreLabel, BorderLayout.CENTER);
+		panel.setBackground(Color.WHITE);
+		return panel;
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof Piece) {
+			if (((Piece) arg).getNextMove().matches("NEXT")) {
+				pieceScreen.setPiece((Piece) arg);
+				pieceScreen.repaint();
+			} else {
+				piece = (Piece) arg;
+				screen.setPiece(piece);
+				screen.repaint();
+				//pieceScreen.repaint();
+			}
+
+		}
+		if (arg instanceof Integer) {
+			int puntuation = (Integer) arg;
+			scoreLabel.setText(String.valueOf(puntuation));
+			levelLabel.setText("Lvl " + String.valueOf(++level));
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+			piece.setNextMove("RIGHT");
+		if (e.getKeyCode() == KeyEvent.VK_LEFT)
+			piece.setNextMove("LEFT");
+		if (e.getKeyCode() == KeyEvent.VK_UP)
+			piece.setNextMove("ROTATE");
+		if (e.getKeyCode() == KeyEvent.VK_DOWN)
+			piece.setNextMove("DOWN");
+		if (e.getKeyCode() == KeyEvent.VK_Q)
+			System.exit(-1);
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// piece.setNextMove("NOTHING");
+	}
+
+}

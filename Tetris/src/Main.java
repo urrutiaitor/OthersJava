@@ -1,32 +1,82 @@
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
 
 import pieces.Block;
-import pieces.Piece;
 
 public class Main {
 	
 	final static int screenWidth = 10;
 	final static int screenHeight = 20;
+	
+	BuzonAsincrono buzon;
+	Menu menu;
+	
+	Window window;
+	Physics physics;
+	ArrayList<Block> blockList;
+	HiloMusica hiloMusica;
 
 	public static void main(String[] args) {
-		new Main();
+		Main main = new Main();
+		main.execute();
 	}
-
+	
 	public Main () {
-		Semaphore s = new Semaphore(1);
-		ArrayList<Block> blockList = new ArrayList<>();
+		buzon = new BuzonAsincrono();
+		menu = new Menu(buzon);
 		
-		String audioFilePath = "./tetrisSoundtrack.wav";
-		HiloMusica musicaFondo = new HiloMusica(audioFilePath);
+	}
+	
+	public void execute () {
+		String answer = null;
+		menu.ejecutar();
 		
-		Window window = new Window(s, blockList, screenWidth, screenHeight);
-		Physics p = new Physics(100, s, blockList, screenWidth, screenHeight);
+		do {
+			
+			menu.setVisible(true);
+			
+			answer = (String) buzon.receive();
+			
+			if (answer.matches("PLAY")) {
+				menu.setVisible(false);
+				
+				ArrayList<Block> blockList = new ArrayList<>();
+				
+				String audioFilePath = "./tetrisSoundtrack.wav";
+				
+				hiloMusica = new HiloMusica(audioFilePath);
+				
+				Thread hilo = new Thread(
+			            new Runnable() {
+			                public void run() {
+			                	hiloMusica.startMusic();
+			                }
+			            }
+			        );
+				hilo.start();
+
+				Window window = new Window(blockList, screenWidth, screenHeight);
+				Physics p = new Physics(buzon, 100, blockList, screenWidth, screenHeight, null);
+				
+				p.addObserver(window);
+				
+				//musicaFondo.start();
+				p.run();
+				
+				int puntuation = (Integer) buzon.receive();
+				hiloMusica.stopMusic();
+				window.closeWindow();
+				
+				new GameOver(buzon);
+				buzon.receive();
+				
+				menu.leerFichero("./datos.dat");
+				menu.compararPuntuacion(puntuation);
+				
+				buzon.receive();
+			}
+			
+		} while (!answer.matches("CLOSE"));
 		
-		p.addObserver(window);
-		
-		musicaFondo.start();
-		p.run();
 	}
 	
 }

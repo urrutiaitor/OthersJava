@@ -1,0 +1,46 @@
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+
+import pieces.Block;
+import pieces.Piece;
+
+public class Main {
+	
+	final static int screenWidth = 10;
+	final static int screenHeight = 20;
+	
+	Semaphore s;
+
+	public static void main(String[] args) {
+		Main main = new Main();
+		main.execute();
+	}
+	
+	public Main () {
+		s = new Semaphore(1);
+		
+	}
+	
+	public void execute () {
+		
+	}
+
+	
+	/*
+	public Main () {
+		ArrayList<Block> blockList = new ArrayList<>();
+		
+		String audioFilePath = "./tetrisSoundtrack.wav";
+		//HiloMusica musicaFondo = new HiloMusica(audioFilePath);
+		
+		Window window = new Window(blockList, screenWidth, screenHeight);
+		Physics p = new Physics(100, blockList, screenWidth, screenHeight, null);
+		
+		p.addObserver(window);
+		
+		//musicaFondo.start();
+		p.run();
+	}
+	*/
+	
+}

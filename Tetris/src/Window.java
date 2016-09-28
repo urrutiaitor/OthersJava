@@ -2,14 +2,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.Semaphore;
-
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,7 +17,7 @@ import pieces.Piece;
 
 public class Window extends JFrame implements Observer, KeyListener {
 
-	Semaphore s;
+	//Semaphore s;
 	ArrayList<Block> list;
 	Piece piece;
 	Piece nextPiece;
@@ -32,8 +29,8 @@ public class Window extends JFrame implements Observer, KeyListener {
 	JLabel levelLabel;
 	int level = 1;
 
-	public Window(Semaphore s, ArrayList<Block> blockList, int screenWidth, int screenHeight) {
-		this.s = s;
+	public Window(ArrayList<Block> blockList, int screenWidth, int screenHeight) {
+		//this.s = s;
 		this.list = blockList;
 		this.screenHeight = screenHeight;
 		this.screenWidth = screenWidth;
@@ -50,38 +47,43 @@ public class Window extends JFrame implements Observer, KeyListener {
 	private Component createWindowPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panel.add(createGameZone(), BorderLayout.CENTER);
+		panel.add(createGameZone(), BorderLayout.WEST);
 		panel.add(createInfoZone(), BorderLayout.EAST);
 
 		return panel;
 	}
 
 	private Component createGameZone() {
+		JPanel panel = new JPanel(new BorderLayout());
+		//panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
 		screen = new Screen(screenWidth, screenHeight, list);
-		return screen;
+		panel.add(screen);
+		return panel;
 	}
 
 	private Component createInfoZone() {
-		JPanel panel = new JPanel(new GridLayout(3, 1));
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
-		panel.add(createNextPieceZone());
-		panel.add(createLevelZone());
-		panel.add(createScoreZone());
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		panel.add(createNextPieceZone(),BorderLayout.NORTH);
+		panel.add(createLevelZone(),BorderLayout.CENTER);
+		panel.add(createScoreZone(),BorderLayout.SOUTH);
 		return panel;
 	}
 
 	private Component createNextPieceZone() {
+		JPanel panel = new JPanel(new BorderLayout());
 		pieceScreen = new PieceScreen(nextPiece);
-		pieceScreen.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), pieceScreen.getBorder()));
-		pieceScreen.setBackground(Color.WHITE);
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		panel.setBackground(Color.WHITE);
+		panel.add(pieceScreen);
 
-		return pieceScreen;
+		return panel;
 	}
 	
 	private Component createLevelZone() {
 		JPanel panel = new JPanel(new BorderLayout());
 		
-		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 		
 		levelLabel = new JLabel("Lvl 1");
 		Font font = new Font("Courier", Font.BOLD, 40);
@@ -94,9 +96,7 @@ public class Window extends JFrame implements Observer, KeyListener {
 
 	private Component createScoreZone() {
 		JPanel panel = new JPanel(new BorderLayout());
-		
 		panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20), panel.getBorder()));
-		
 		scoreLabel = new JLabel("0");
 		Font font = new Font("Courier", Font.BOLD, 60);
 		scoreLabel.setFont(font);
@@ -104,6 +104,10 @@ public class Window extends JFrame implements Observer, KeyListener {
 		panel.add(scoreLabel, BorderLayout.CENTER);
 		panel.setBackground(Color.WHITE);
 		return panel;
+	}
+	
+	public void closeWindow() {
+		this.dispose();
 	}
 
 	@Override
@@ -116,6 +120,7 @@ public class Window extends JFrame implements Observer, KeyListener {
 				piece = (Piece) arg;
 				screen.setPiece(piece);
 				screen.repaint();
+				//pieceScreen.repaint();
 			}
 
 		}
@@ -149,5 +154,5 @@ public class Window extends JFrame implements Observer, KeyListener {
 	public void keyReleased(KeyEvent e) {
 		// piece.setNextMove("NOTHING");
 	}
-
+	
 }

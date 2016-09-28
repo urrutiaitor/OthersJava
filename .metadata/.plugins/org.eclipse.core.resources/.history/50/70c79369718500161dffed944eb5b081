@@ -1,0 +1,44 @@
+
+
+public class Main {
+	
+	final static int screenWidth = 10;
+	final static int screenHeight = 20;
+	
+	BuzonSincrono buzon;
+	Menu menu;
+
+	public static void main(String[] args) {
+		Main main = new Main();
+		main.execute();
+	}
+	
+	public Main () {
+		buzon = new BuzonSincrono();
+		menu = new Menu(buzon);
+		
+	}
+	
+	public void execute () {
+		menu.ejecutar();
+	}
+
+	
+	/*
+	public Main () {
+		ArrayList<Block> blockList = new ArrayList<>();
+		
+		String audioFilePath = "./tetrisSoundtrack.wav";
+		//HiloMusica musicaFondo = new HiloMusica(audioFilePath);
+		
+		Window window = new Window(blockList, screenWidth, screenHeight);
+		Physics p = new Physics(100, blockList, screenWidth, screenHeight, null);
+		
+		p.addObserver(window);
+		
+		//musicaFondo.start();
+		p.run();
+	}
+	*/
+	
+}

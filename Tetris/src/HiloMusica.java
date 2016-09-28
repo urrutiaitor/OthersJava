@@ -11,13 +11,11 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 
-public class HiloMusica extends Thread{
+public class HiloMusica {
 	
 	Clip audioClip;
 	boolean fin;
-	//boolean empezarCancion;
 	int cont = 100;
-	Semaphore esperarEmpezarCancion, esperarTerminarCancion;
 	String audioFilePath;
 	
 	public HiloMusica(String audioFilePath){
@@ -25,23 +23,6 @@ public class HiloMusica extends Thread{
 		
 		fin = false;
 		crearAudio(audioFilePath);
-		
-		esperarEmpezarCancion = new Semaphore(0);
-		esperarTerminarCancion = new Semaphore(1);
-	}
-
-	public void run(){
-		
-		while(!fin){
-			try {
-			repetirCancion();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		audioClip.close();
 		
 	}
 
@@ -61,8 +42,6 @@ public class HiloMusica extends Thread{
 			audioClip = (Clip) AudioSystem.getLine(info);
 			audioClip.open(audioStream);
 			
-			audioClip.start();
-			
 		} catch (UnsupportedAudioFileException ex) {
 			System.out.println("The specified audio file is not supported.");
 			ex.printStackTrace();
@@ -73,6 +52,25 @@ public class HiloMusica extends Thread{
 			System.out.println("Error playing the audio file.");
 			ex.printStackTrace();
 		}
+	}
+	
+	public void startMusic() {
+		audioClip.start();
+		
+		while(!fin){
+			try {
+			repetirCancion();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		audioClip.close();
+	}
+	
+	public void stopMusic () {
+		audioClip.stop();
 	}
 	
 }
