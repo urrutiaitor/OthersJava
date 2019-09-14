@@ -174,18 +174,17 @@ public class Menu extends JFrame implements ActionListener {
 		this.dispose();
 	}
 
-	void compararPuntuacion(int puntos) {
+	public void compararPuntuacion(int puntos) {
 
 		for (int i = 0; i < puntuaciones.length; i++) {
 			if (puntos > puntuaciones[i]) {
-				System.out.println("Pidiendo nombre");
 				adelantado = i;
 				puntosAdelantador = puntos;
 				pedirNombre();
-				i = puntos;
+				return;
 			}
 		}
-
+		buzon.send("END");
 	}
 
 	private void pedirNombre() {

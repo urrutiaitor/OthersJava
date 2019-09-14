@@ -77,6 +77,8 @@ public class Main {
 			
 		} while (!answer.matches("CLOSE"));
 		
+		menu.closeMenu();
+		
 	}
 	
 }
